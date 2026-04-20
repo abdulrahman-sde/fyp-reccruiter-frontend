@@ -3,10 +3,12 @@ import { Features } from "@/components/landing/recruiter/Features";
 import { HowItWorks } from "@/components/landing/recruiter/HowItWorks";
 import { Metrics } from "@/components/landing/recruiter/Metrics";
 import { CTA } from "@/components/landing/recruiter/CTA";
+import { Header } from "@/components/landing/recruiter/Header";
 
 export default function RecruiterLandingPage() {
   return (
-    <div className="flex flex-col min-h-[100dvh] bg-white">
+    <div className="flex min-h-dvh flex-col bg-white ">
+      <Header />
       <main className="flex-1">
         <Hero />
         <Features />

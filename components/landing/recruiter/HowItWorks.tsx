@@ -25,7 +25,7 @@ export function HowItWorks() {
   ];
 
   return (
-    <section className="relative w-full py-32 md:py-48 bg-white overflow-hidden">
+    <section id="pipeline" className="relative w-full py-32 md:py-48 bg-white overflow-hidden scroll-mt-28">
       <div className="container mx-auto px-4 md:px-6 relative z-10 flex flex-col md:flex-row gap-16 lg:gap-24">
         {/* Sticky Header Side */}
         <div className="w-full md:w-5/12 flex flex-col items-start">
@@ -48,7 +48,7 @@ export function HowItWorks() {
             <div key={i} className="relative group">
               {/* Vertical connecting line */}
               {i !== steps.length - 1 && (
-                <div className="absolute left-6 top-16 bottom-[-3rem] w-[1px] bg-black/10 group-hover:bg-black/20 transition-colors duration-500" />
+                <div className="absolute -bottom-12 left-6 top-16 w-px bg-black/10 transition-colors duration-500 group-hover:bg-black/20" />
               )}
               
               <div className="flex gap-8">
