@@ -3,10 +3,10 @@ import { Badge } from "@/components/ui/badge";
 
 export function Hero() {
   return (
-    <section className="relative w-full min-h-[90vh] flex items-center justify-center overflow-hidden bg-white">
+    <section className="relative w-full min-h-screen -mt-20 flex items-center justify-center overflow-hidden bg-white">
       {/* Ethereal mesh gradients */}
-      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-purple-500/15 rounded-full blur-[120px] pointer-events-none mix-blend-darken" />
-      <div className="absolute bottom-1/4 right-0 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none mix-blend-darken" />
+      <div className="absolute top-1/4 left-1/4 w-125 h-125 bg-purple-500/15 rounded-full blur-[120px] pointer-events-none mix-blend-darken" />
+      <div className="absolute bottom-1/4 right-0 w-150 h-150 bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none mix-blend-darken" />
 
       <div className="relative container px-4 md:px-6 mx-auto flex flex-col items-center text-center space-y-10 z-10">
         <div>
@@ -15,7 +15,7 @@ export function Hero() {
           </Badge>
         </div>
         
-        <div className="space-y-6 max-w-[900px]">
+        <div className="space-y-6 max-w-225">
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-neutral-900 drop-shadow-lg">
             Hire Smarter, <br className="hidden md:block" /> Not Harder with AI
           </h1>
@@ -26,7 +26,7 @@ export function Hero() {
 
         {/* Double-bezel CTA Wrapper */}
         <div className="p-2 rounded-[2.5rem] bg-black/5 border border-black/10 shadow-2xl backdrop-blur-2xl">
-          <div className="flex flex-col sm:flex-row gap-3 rounded-[calc(2.5rem-0.5rem)] overflow-hidden">
+          <div className="flex flex-col sm:flex-row gap-3 rounded-4xl overflow-hidden">
             <Button size="lg" className="rounded-full px-8 py-7 text-base font-medium bg-neutral-900 text-white hover:bg-black group transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]">
               Post a Job Today
               <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center ml-3 group-hover:translate-x-1 group-hover:-translate-y-[1px] transition-transform duration-500">
