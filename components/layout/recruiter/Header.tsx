@@ -1,6 +1,11 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export function Header() {
+  const router = useRouter();
+
   return (
     <header className="h-16 shrink-0 border-b border-border bg-background/80 backdrop-blur-xl flex items-center justify-between px-4 md:px-8 lg:px-12 sticky top-0 z-50">
       <div className="flex items-center">
@@ -9,7 +14,10 @@ export function Header() {
 
       <div className="flex items-center gap-4">
         {/* New Job CTA - "Island" Style Button */}
-        <Button className="rounded-full px-5 py-2 h-9 text-xs font-medium bg-foreground text-background hover:opacity-90 transition-transform active:scale-95 shadow-sm">
+        <Button
+          onClick={() => router.push("/jobs/new")}
+          className="rounded-full px-5 py-2 h-9 text-xs font-medium bg-foreground text-background hover:opacity-90 transition-transform active:scale-95 shadow-sm"
+        >
           + Post New Job
         </Button>
 

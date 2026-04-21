@@ -22,11 +22,6 @@ export function Sidebar() {
       icon: "M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z",
     },
     {
-      label: "AI Interviews",
-      href: "/interviews",
-      icon: "M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 16.5V7.5L16 12L10 16.5Z",
-    },
-    {
       label: "Reports",
       href: "/reports",
       icon: "M3 13H7V21H3V13ZM10 7H14V21H10V7ZM17 1V21H21V1H17Z",
