@@ -1,9 +1,14 @@
+"use client";
+
 import Link from "next/link";
 import { AuthShell } from "@/components/auth/recruiter/AuthShell";
 import { AuthField } from "@/components/auth/recruiter/AuthField";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export default function SignUpPage() {
+  const router = useRouter();
+
   return (
     <AuthShell
       eyebrow="Team Onboarding"
@@ -48,8 +53,12 @@ export default function SignUpPage() {
           placeholder="Re-enter your password"
         />
 
-        <Button className="h-11 w-full rounded-2xl bg-foreground text-background hover:opacity-90" asChild>
-          <Link href="/onboarding">Create account</Link>
+        <Button
+          type="button"
+          className="h-11 w-full rounded-2xl bg-foreground text-background hover:opacity-90"
+          onClick={() => router.push("/onboarding")}
+        >
+          Create account
         </Button>
       </form>
     </AuthShell>

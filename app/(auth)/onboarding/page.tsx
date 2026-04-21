@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { AuthShell } from "@/components/auth/recruiter/AuthShell";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 const fieldStyles =
   "h-11 w-full rounded-2xl border border-white/10 bg-white/4 px-4 text-sm text-foreground placeholder:text-muted-foreground/80 outline-none transition-colors focus:border-emerald-300/45 focus:bg-white/6";
@@ -9,6 +12,8 @@ const textareaStyles =
   "w-full rounded-2xl border border-white/10 bg-white/4 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/80 outline-none transition-colors focus:border-emerald-300/45 focus:bg-white/6";
 
 export default function RecruiterOnboardingPage() {
+  const router = useRouter();
+
   return (
     <AuthShell
       eyebrow="Recruiter Setup"
@@ -134,12 +139,16 @@ export default function RecruiterOnboardingPage() {
             type="button"
             variant="outline"
             className="h-11 rounded-full border-white/12 bg-white/5 text-foreground hover:bg-white/10"
-            asChild
+            onClick={() => router.push("/sign-up")}
           >
-            <Link href="/sign-up">Back</Link>
+            Back
           </Button>
-          <Button className="h-11 rounded-full bg-foreground text-background hover:opacity-90" asChild>
-            <Link href="/dashboard">Save and continue</Link>
+          <Button
+            type="button"
+            className="h-11 rounded-full bg-foreground text-background hover:opacity-90"
+            onClick={() => router.push("/dashboard")}
+          >
+            Save and continue
           </Button>
         </div>
       </form>

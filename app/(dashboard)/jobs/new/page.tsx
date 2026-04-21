@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -206,8 +205,13 @@ export default function NewJobPage() {
         </div>
 
         <div className="flex flex-col-reverse gap-3 pb-2 sm:flex-row sm:justify-end">
-          <Button variant="outline" className="h-11 rounded-full border-white/12 bg-white/5 text-white hover:bg-white/10" asChild>
-            <Link href="/jobs">Cancel</Link>
+          <Button
+            type="button"
+            variant="outline"
+            className="h-11 rounded-full border-white/12 bg-white/5 text-white hover:bg-white/10"
+            onClick={() => router.push("/jobs")}
+          >
+            Cancel
           </Button>
           <Button type="submit" className="h-11 rounded-full bg-white text-black hover:bg-white/90">
             Save Job Post
