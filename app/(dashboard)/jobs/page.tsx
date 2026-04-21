@@ -79,12 +79,15 @@ export default function JobsPage() {
             Manage your open roles, drafts, and past listings.
           </p>
         </div>
-        <Button className="rounded-full px-6 py-6 text-sm font-medium bg-white text-black hover:bg-white/90 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+        <Button
+          onClick={() => router.push("/jobs/new")}
+          className="rounded-full px-6 py-6 text-sm font-medium bg-white text-black hover:bg-white/90 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+        >
           Create New Job
         </Button>
       </div>
 
-      <div className="flex items-center gap-2 p-1 rounded-full bg-white/[0.02] border border-white/[0.05] ring-1 ring-white/[0.02] backdrop-blur-xl w-fit animate-fade-in-up animation-delay-100">
+      <div className="flex w-fit items-center gap-2 rounded-full border border-white/5 bg-white/2 p-1 ring-1 ring-white/2 backdrop-blur-xl animate-fade-in-up animation-delay-100">
         {tabs.map((tab) => (
           <button
             key={tab}
@@ -100,8 +103,8 @@ export default function JobsPage() {
         ))}
       </div>
 
-      <div className="p-1 rounded-[2rem] bg-white/[0.02] border border-white/[0.05] ring-1 ring-white/[0.02] backdrop-blur-xl animate-fade-in-up animation-delay-100">
-        <div className="rounded-[calc(2rem-0.25rem)] bg-gradient-to-b from-white/[0.03] to-transparent p-6 md:p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] min-h-[300px]">
+      <div className="rounded-4xl border border-white/5 bg-white/2 p-1 ring-1 ring-white/2 backdrop-blur-xl animate-fade-in-up animation-delay-100">
+        <div className="min-h-75 rounded-[calc(2rem-0.25rem)] bg-linear-to-b from-white/3 to-transparent p-6 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] md:p-8">
           {filteredJobs.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-white/30 text-sm py-12">
               No jobs found for this category.
@@ -112,9 +115,9 @@ export default function JobsPage() {
                 <div
                   key={i}
                   onClick={() => router.push(`/jobs/some-job-id`)}
-                  className="group relative p-6 rounded-[1.5rem] border border-white/5 bg-white/[0.01] hover:border-white/15 transition-colors cursor-pointer flex flex-col h-[280px]"
+                  className="group relative flex h-70 flex-col rounded-3xl border border-white/5 bg-white/1 p-6 transition-colors hover:border-white/15 cursor-pointer"
                 >
-                  <div className="absolute inset-0 rounded-[1.5rem] bg-gradient-to-t from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                  <div className="pointer-events-none absolute inset-0 rounded-3xl bg-linear-to-t from-white/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
                   <div className="flex items-center justify-between mb-4 relative z-10">
                     <span

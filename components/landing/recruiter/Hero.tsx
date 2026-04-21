@@ -29,7 +29,7 @@ export function Hero() {
           <div className="flex flex-col sm:flex-row gap-3 rounded-4xl overflow-hidden">
             <Button size="lg" className="rounded-full px-8 py-7 text-base font-medium bg-neutral-900 text-white hover:bg-black group transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]">
               Post a Job Today
-              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center ml-3 group-hover:translate-x-1 group-hover:-translate-y-[1px] transition-transform duration-500">
+              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center ml-3 group-hover:translate-x-1 group-hover:-translate-y-px transition-transform duration-500">
                 <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M4.5 1.5H13.5V10.5H12V3.56066L2.56066 13L1.5 11.9393L10.9393 2.5H4.5V1.5Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path>
                 </svg>
