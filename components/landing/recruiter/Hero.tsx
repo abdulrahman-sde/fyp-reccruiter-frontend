@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 
 export function Hero() {
   return (
-    <section className="relative w-full min-h-screen -mt-20 flex items-center justify-center overflow-hidden bg-white">
+    <section className="relative w-full min-h-screen -mt-24  flex items-center justify-center overflow-hidden bg-white">
       {/* Ethereal mesh gradients */}
       <div className="absolute top-1/4 left-1/4 w-125 h-125 bg-purple-500/15 rounded-full blur-[120px] pointer-events-none mix-blend-darken" />
       <div className="absolute bottom-1/4 right-0 w-150 h-150 bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none mix-blend-darken" />
@@ -14,12 +14,12 @@ export function Hero() {
             HireFlow AI Intelligence
           </Badge>
         </div>
-        
-        <div className="space-y-6 max-w-225">
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-neutral-900 drop-shadow-lg">
+
+        <div className="space-y-6 max-w-225 px-2.5 sm:px-0">
+          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight text-neutral-900 drop-shadow-lg">
             Hire Smarter, <br className="hidden md:block" /> Not Harder with AI
           </h1>
-          <p className="text-xl text-neutral-500 font-light leading-relaxed max-w-2xl mx-auto">
+          <p className="text-lg sm:text-xl text-neutral-500 font-light leading-relaxed max-w-2xl mx-auto">
             Automate your recruitment process. Reduce manual HR workload by 80% while ensuring fair, consistent, and scalable job application evaluation from initial CV screening to final interviews.
           </p>
         </div>
@@ -35,7 +35,7 @@ export function Hero() {
                 </svg>
               </span>
             </Button>
-            <Button size="lg" variant="outline" className="rounded-full px-8 py-7 text-base font-medium border-black/10 text-neutral-900 hover:bg-black/10 bg-transparent transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]">
+            <Button size="lg" variant="outline" className="rounded-full px-8 py-7 text-base font-medium border-black/10 text-neutral-800 hover:bg-neutral-900 hover:text-neutral-900 hover:border-black bg-transparent transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]">
               Book a Demo
             </Button>
           </div>

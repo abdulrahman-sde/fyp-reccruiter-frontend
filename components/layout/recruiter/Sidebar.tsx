@@ -29,55 +29,79 @@ export function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 border-r border-border bg-background flex-col hidden md:flex shrink-0">
-      <div className="h-16 flex items-center px-6 border-b border-border shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-6 h-6 rounded bg-emerald-400/20 ring-1 ring-emerald-400/50 flex items-center justify-center">
-            <div className="w-2 h-2 rounded-full bg-emerald-400" />
+    <>
+      <aside className="w-64 border-r border-border bg-background flex-col hidden md:flex shrink-0">
+        <div className="h-16 flex items-center px-6 border-b border-border shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-6 h-6 rounded bg-emerald-400/20 ring-1 ring-emerald-400/50 flex items-center justify-center">
+              <div className="w-2 h-2 rounded-full bg-emerald-400" />
+            </div>
+            <span className="font-medium text-lg tracking-tight">HireFlow</span>
           </div>
-          <span className="font-medium text-lg tracking-tight">HireFlow</span>
         </div>
-      </div>
 
-      <nav className="flex-1 overflow-y-auto px-4 pt-8 pb-4 space-y-1">
-        {navItems.map((item, i) => {
+        <nav className="flex-1 overflow-y-auto px-4 pt-8 pb-4 space-y-1">
+          {navItems.map((item, i) => {
+            const isActive = pathname.startsWith(item.href);
+            return (
+              <Link
+                key={i}
+                href={item.href}
+                className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-all duration-300 ease-out group ${
+                  isActive
+                    ? "bg-white/6 text-foreground shadow-sm ring-1 ring-white/10"
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/2"
+                }`}
+              >
+                <svg
+                  className={`w-5 h-5 transition-transform duration-300 ${isActive ? "text-foreground" : "group-hover:scale-110"}`}
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d={item.icon} />
+                </svg>
+                <span className="text-sm font-medium">{item.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="p-4 mt-auto">
+          <div className="p-4 rounded-2xl bg-white/2 border border-border group transition-colors hover:bg-white/5">
+            <p className="text-xs text-muted-foreground mb-3 group-hover:text-foreground">
+              Enterprise Plan
+            </p>
+            <div className="w-full bg-white/5 rounded-full h-1.5 mb-2 overflow-hidden">
+              <div className="bg-primary h-1.5 rounded-full w-[45%]" />
+            </div>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              450 / 1000 AI Matches
+            </p>
+          </div>
+        </div>
+      </aside>
+
+      <nav className="fixed inset-x-3 bottom-3 z-40 flex items-center justify-between rounded-2xl border border-white/10 bg-background/85 px-2 py-2 shadow-[0_14px_40px_-20px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl md:hidden">
+        {navItems.map((item) => {
           const isActive = pathname.startsWith(item.href);
           return (
             <Link
-              key={i}
+              key={item.href}
               href={item.href}
-              className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-all duration-300 ease-out group ${
+              className={`flex min-h-11 flex-1 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1.5 text-[10px] font-medium tracking-wide transition-all ${
                 isActive
-                  ? "bg-white/[0.06] text-foreground shadow-sm ring-1 ring-white/10"
-                  : "text-muted-foreground hover:text-foreground hover:bg-white/[0.02]"
+                  ? "bg-white/10 text-foreground"
+                  : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
               }`}
             >
-              <svg
-                className={`w-5 h-5 transition-transform duration-300 ${isActive ? "text-foreground" : "group-hover:scale-110"}`}
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
                 <path d={item.icon} />
               </svg>
-              <span className="text-sm font-medium">{item.label}</span>
+              <span>{item.label}</span>
             </Link>
           );
         })}
       </nav>
-
-      <div className="p-4 mt-auto">
-        <div className="p-4 rounded-2xl bg-white/[0.02] border border-border group transition-colors hover:bg-white/[0.05]">
-          <p className="text-xs text-muted-foreground mb-3 group-hover:text-foreground">
-            Enterprise Plan
-          </p>
-          <div className="w-full bg-white/5 rounded-full h-1.5 mb-2 overflow-hidden">
-            <div className="bg-primary h-1.5 rounded-full w-[45%]" />
-          </div>
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
-            450 / 1000 AI Matches
-          </p>
-        </div>
-      </div>
-    </aside>
+    </>
   );
 }
