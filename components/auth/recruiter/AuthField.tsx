@@ -4,6 +4,7 @@ type AuthFieldProps = {
   type?: string;
   placeholder?: string;
   autoComplete?: string;
+  error?: string;
 };
 
 export function AuthField({
@@ -12,6 +13,7 @@ export function AuthField({
   type = "text",
   placeholder,
   autoComplete,
+  error,
 }: AuthFieldProps) {
   return (
     <label className="flex flex-col gap-2" htmlFor={id}>
@@ -26,6 +28,7 @@ export function AuthField({
         placeholder={placeholder}
         className="h-11 rounded-2xl border border-white/10 bg-white/4 px-4 text-sm text-foreground placeholder:text-muted-foreground/80 outline-none transition-colors focus:border-emerald-300/45 focus:bg-white/6"
       />
+      {error && <span className="text-xs text-red-400">{error}</span>}
     </label>
   );
 }
