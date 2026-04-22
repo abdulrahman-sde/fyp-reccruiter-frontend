@@ -1,8 +1,9 @@
 "use client";
 
-import { FormEvent } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Check, ChevronDown } from "lucide-react";
 
 export default function NewJobPage() {
   const router = useRouter();
@@ -25,7 +26,7 @@ export default function NewJobPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="animate-fade-in-up rounded-4xl border border-white/5 bg-white/2 p-1 ring-1 ring-white/2 backdrop-blur-xl animation-delay-100">
+        <div className="relative z-40 animate-fade-in-up rounded-4xl border border-white/5 bg-white/2 p-1 ring-1 ring-white/2 backdrop-blur-xl animation-delay-100">
           <div className="rounded-[calc(2rem-0.25rem)] bg-linear-to-b from-white/3 to-transparent p-6 md:p-8">
             <h2 className="mb-5 text-lg font-medium tracking-tight text-white">Role Details</h2>
 
@@ -39,38 +40,33 @@ export default function NewJobPage() {
               </Field>
 
               <Field label="Employment Type" htmlFor="employmentType">
-                <select id="employmentType" name="employmentType" defaultValue="" className={inputStyles} required>
-                  <option value="" disabled>
-                    Select type
-                  </option>
-                  <option>Full-Time</option>
-                  <option>Part-Time</option>
-                  <option>Contract</option>
-                  <option>Internship</option>
-                </select>
+                <FormSelect
+                  id="employmentType"
+                  name="employmentType"
+                  required
+                  placeholder="Select type"
+                  options={["Full-Time", "Part-Time", "Contract", "Internship"]}
+                />
               </Field>
 
               <Field label="Experience Level" htmlFor="experienceLevel">
-                <select id="experienceLevel" name="experienceLevel" defaultValue="" className={inputStyles} required>
-                  <option value="" disabled>
-                    Select level
-                  </option>
-                  <option>Entry</option>
-                  <option>Mid-Level</option>
-                  <option>Senior</option>
-                  <option>Lead / Principal</option>
-                </select>
+                <FormSelect
+                  id="experienceLevel"
+                  name="experienceLevel"
+                  required
+                  placeholder="Select level"
+                  options={["Entry", "Mid-Level", "Senior", "Lead / Principal"]}
+                />
               </Field>
 
               <Field label="Work Mode" htmlFor="workMode">
-                <select id="workMode" name="workMode" defaultValue="" className={inputStyles} required>
-                  <option value="" disabled>
-                    Select mode
-                  </option>
-                  <option>Remote</option>
-                  <option>Onsite</option>
-                  <option>Hybrid</option>
-                </select>
+                <FormSelect
+                  id="workMode"
+                  name="workMode"
+                  required
+                  placeholder="Select mode"
+                  options={["Remote", "Onsite", "Hybrid"]}
+                />
               </Field>
 
               <Field label="Location" htmlFor="location">
@@ -88,18 +84,13 @@ export default function NewJobPage() {
           </div>
         </div>
 
-        <div className="animate-fade-in-up rounded-4xl border border-white/5 bg-white/2 p-1 ring-1 ring-white/2 backdrop-blur-xl animation-delay-100">
+        <div className="relative z-30 animate-fade-in-up rounded-4xl border border-white/5 bg-white/2 p-1 ring-1 ring-white/2 backdrop-blur-xl animation-delay-100">
           <div className="rounded-[calc(2rem-0.25rem)] bg-linear-to-b from-white/3 to-transparent p-6 md:p-8">
             <h2 className="mb-5 text-lg font-medium tracking-tight text-white">Compensation</h2>
 
             <div className="grid gap-5 md:grid-cols-3">
               <Field label="Currency" htmlFor="currency">
-                <select id="currency" name="currency" defaultValue="USD" className={inputStyles}>
-                  <option>USD</option>
-                  <option>EUR</option>
-                  <option>GBP</option>
-                  <option>PKR</option>
-                </select>
+                <FormSelect id="currency" name="currency" defaultValue="USD" options={["USD", "EUR", "GBP", "PKR"]} />
               </Field>
 
               <Field label="Minimum Salary" htmlFor="salaryMin">
@@ -113,7 +104,7 @@ export default function NewJobPage() {
           </div>
         </div>
 
-        <div className="animate-fade-in-up rounded-4xl border border-white/5 bg-white/2 p-1 ring-1 ring-white/2 backdrop-blur-xl animation-delay-100">
+        <div className="relative z-20 animate-fade-in-up rounded-4xl border border-white/5 bg-white/2 p-1 ring-1 ring-white/2 backdrop-blur-xl animation-delay-100">
           <div className="rounded-[calc(2rem-0.25rem)] bg-linear-to-b from-white/3 to-transparent p-6 md:p-8">
             <h2 className="mb-5 text-lg font-medium tracking-tight text-white">Description & Requirements</h2>
 
@@ -173,24 +164,31 @@ export default function NewJobPage() {
           </div>
         </div>
 
-        <div className="animate-fade-in-up rounded-4xl border border-white/5 bg-white/2 p-1 ring-1 ring-white/2 backdrop-blur-xl animation-delay-100">
+        <div className="relative z-10 animate-fade-in-up rounded-4xl border border-white/5 bg-white/2 p-1 ring-1 ring-white/2 backdrop-blur-xl animation-delay-100">
           <div className="rounded-[calc(2rem-0.25rem)] bg-linear-to-b from-white/3 to-transparent p-6 md:p-8">
             <h2 className="mb-5 text-lg font-medium tracking-tight text-white">Screening & Publish</h2>
 
             <div className="grid gap-5 md:grid-cols-2">
               <Field label="Application Form Type" htmlFor="formType">
-                <select id="formType" name="formType" defaultValue="Resume + Basic Details" className={inputStyles}>
-                  <option>Resume + Basic Details</option>
-                  <option>Resume + Portfolio + Cover Letter</option>
-                  <option>Resume + Screening Questions</option>
-                </select>
+                <FormSelect
+                  id="formType"
+                  name="formType"
+                  defaultValue="Resume + Basic Details"
+                  options={[
+                    "Resume + Basic Details",
+                    "Resume + Portfolio + Cover Letter",
+                    "Resume + Screening Questions",
+                  ]}
+                />
               </Field>
 
               <Field label="Initial Job Status" htmlFor="status">
-                <select id="status" name="status" defaultValue="Draft" className={inputStyles}>
-                  <option>Draft</option>
-                  <option>Publish Immediately</option>
-                </select>
+                <FormSelect
+                  id="status"
+                  name="status"
+                  defaultValue="Draft"
+                  options={["Draft", "Publish Immediately"]}
+                />
               </Field>
 
               <Field label="Screening Question 1" htmlFor="question1">
@@ -208,12 +206,12 @@ export default function NewJobPage() {
           <Button
             type="button"
             variant="outline"
-            className="h-11 rounded-full border-white/12 bg-white/5 text-white hover:bg-white/10"
+            className="h-11 px-4 rounded-full border-white/12 bg-white/5 text-white hover:bg-white/10"
             onClick={() => router.push("/jobs")}
           >
             Cancel
           </Button>
-          <Button type="submit" className="h-11 rounded-full bg-white text-black hover:bg-white/90">
+          <Button type="submit" className="h-11 px-4 rounded-full bg-white text-black hover:bg-white/90">
             Save Job Post
           </Button>
         </div>
@@ -246,3 +244,116 @@ const inputStyles =
 
 const textareaStyles =
   "w-full rounded-2xl border border-white/10 bg-white/4 px-4 py-3 text-sm text-white placeholder:text-white/30 outline-none transition-colors focus:border-emerald-300/45 focus:bg-white/6";
+
+type FormSelectProps = {
+  id: string;
+  name: string;
+  options: string[];
+  placeholder?: string;
+  defaultValue?: string;
+  required?: boolean;
+};
+
+function FormSelect({
+  id,
+  name,
+  options,
+  placeholder = "Select an option",
+  defaultValue = "",
+  required = false,
+}: FormSelectProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedValue, setSelectedValue] = useState(defaultValue);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleOutsideClick(event: MouseEvent) {
+      if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
+
+  return (
+    <div ref={rootRef} className="relative">
+      <select
+        id={`${id}-native`}
+        name={name}
+        value={selectedValue}
+        onChange={(event) => setSelectedValue(event.target.value)}
+        required={required}
+        tabIndex={-1}
+        className="sr-only"
+        aria-hidden="true"
+      >
+        <option value="">{placeholder}</option>
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+
+      <button
+        id={id}
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-controls={`${id}-listbox`}
+        onClick={() => setIsOpen((open) => !open)}
+        className="h-11 w-full rounded-2xl border border-white/10 bg-white/4 px-4 pr-11 text-left text-sm text-white outline-none transition-all hover:border-white/20 hover:bg-white/6 focus-visible:border-emerald-300/45 focus-visible:bg-white/6 focus-visible:shadow-[0_0_0_3px_rgba(52,211,153,0.12)]"
+      >
+        <span className={selectedValue ? "text-white" : "text-white/35"}>{selectedValue || placeholder}</span>
+        <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-white/45">
+          <ChevronDown aria-hidden="true" className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+        </span>
+      </button>
+
+      {isOpen ? (
+        <div className="absolute z-50 mt-2 w-full rounded-2xl border border-white/12 bg-black/45 p-1.5 shadow-[0_20px_50px_-24px_rgba(0,0,0,0.85),inset_0_1px_0_rgba(255,255,255,0.08)]">
+          <ul id={`${id}-listbox`} role="listbox" aria-label={`${name} options`} className="space-y-1">
+            {options.map((option) => {
+              const isSelected = selectedValue === option;
+
+              return (
+                <li key={option} role="presentation">
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={isSelected}
+                    onClick={() => {
+                      setSelectedValue(option);
+                      setIsOpen(false);
+                    }}
+                    className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm transition-colors ${
+                      isSelected
+                        ? "bg-emerald-300/15 text-emerald-100"
+                        : "text-white/90 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    <span>{option}</span>
+                    {isSelected ? <Check aria-hidden="true" className="h-3.5 w-3.5" /> : null}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ) : null}
+    </div>
+  );
+}

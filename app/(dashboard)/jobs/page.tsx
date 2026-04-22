@@ -87,20 +87,21 @@ export default function JobsPage() {
         </Button>
       </div>
 
-      <div className="flex w-fit items-center gap-2 rounded-full border border-white/5 bg-white/2 p-1 ring-1 ring-white/2 backdrop-blur-xl animate-fade-in-up animation-delay-100">
-        {tabs.map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
-              activeTab === tab
-                ? "bg-white/10 text-white shadow-[0_1px_2px_rgba(0,0,0,0.5)]"
-                : "text-white/50 hover:text-white/90 hover:bg-white/5"
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
+      <div className="flex items-center justify-center md:block">
+        <div className="flex w-fit items-center gap-2 rounded-full border border-white/5 bg-white/2 p-1 ring-1 ring-white/2 backdrop-blur-xl animate-fade-in-up animation-delay-100">
+          {tabs.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${activeTab === tab
+                  ? "bg-white/10 text-white shadow-[0_1px_2px_rgba(0,0,0,0.5)]"
+                  : "text-white/50 hover:text-white/90 hover:bg-white/5"
+                }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="rounded-4xl border border-white/5 bg-white/2 p-1 ring-1 ring-white/2 backdrop-blur-xl animate-fade-in-up animation-delay-100">
@@ -121,13 +122,12 @@ export default function JobsPage() {
 
                   <div className="flex items-center justify-between mb-4 relative z-10">
                     <span
-                      className={`px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-semibold ${
-                        job.status === "Active"
+                      className={`px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-semibold ${job.status === "Active"
                           ? "bg-emerald-400/10 text-emerald-400 border border-emerald-400/20"
                           : job.status === "Previous"
                             ? "bg-white/5 text-white/40 border border-white/5"
                             : "bg-white/5 text-white/70 border border-white/10"
-                      }`}
+                        }`}
                     >
                       {job.status}
                     </span>
