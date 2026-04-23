@@ -8,7 +8,6 @@ export function useDashboardStats() {
     openJobs: 8,
     totalApplications: 342,
     interviewsPending: 12,
-    aiScreeningEfficiency: "84%", // e.g., 84% of screening automated
   };
 
   const activeJobs: ActiveJob[] = [
