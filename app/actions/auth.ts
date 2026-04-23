@@ -5,7 +5,9 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import type { AuthActionState, AuthUser } from "@/types/auth";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+// Server actions run on the server — use the internal proxy base so the
+// backend URL is never bundled into client code.
+const API_BASE = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
 const REFRESH_TOKEN_MAX_AGE = 7 * 24 * 60 * 60; // 7 days
 

@@ -2,7 +2,6 @@ export interface DashboardStats {
   openJobs: number;
   totalApplications: number;
   interviewsPending: number;
-  aiScreeningEfficiency: string;
 }
 
 export interface ActiveJob {

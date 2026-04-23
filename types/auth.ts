@@ -5,6 +5,14 @@ export interface AuthUser {
   profile: {
     firstName: string;
     lastName: string;
+    phone: string | null;
+    jobTitle: string | null;
+  } | null;
+  company: {
+    name: string;
+    website: string | null;
+    industry: string | null;
+    size: string | null;
   } | null;
   onboardingDone: boolean;
 }

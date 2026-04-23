@@ -1,20 +1,26 @@
-"use client";
-
-import { useDashboardStats } from "@/hooks/useDashboardStats";
+import { getDashboardStats, getJobs } from "@/lib/dal";
 import { StatsOverview } from "@/components/dashboard/recruiter/StatsOverview";
 import { ActiveJobs } from "@/components/dashboard/recruiter/ActiveJobs";
 import { RecentApplications } from "@/components/dashboard/recruiter/RecentApplications";
+import type { DashboardStats } from "@/types/dashboard";
 
-export default function DashboardPage() {
-  const { stats, activeJobs, recentApplications, loading } = useDashboardStats();
+export default async function DashboardPage() {
+  const [statsData, jobsData] = await Promise.all([
+    getDashboardStats(),
+    getJobs({ status: "PUBLISHED", limit: 5 }),
+  ]);
 
-  if (loading) {
-    return (
-      <div className="flex-1 flex items-center justify-center min-h-[50vh]">
-        <div className="w-8 h-8 rounded-full border-2 border-border border-t-foreground  animate-spin"></div>
-      </div>
-    );
-  }
+  const stats: DashboardStats = statsData ?? { openJobs: 0, totalApplications: 0, interviewsPending: 0 };
+
+  const activeJobs = (jobsData?.jobs ?? []).map((j) => ({
+    id: j.id,
+    title: j.title,
+    department: j.experience_level,
+    postedAt: new Date(j.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+    applicationsCount: j.applicants_count,
+    aiMatchedCount: j.ai_matches_count,
+    interviewsScheduled: 0,
+  }));
 
   return (
     <div className="space-y-12 max-w-7xl mx-auto">
@@ -34,7 +40,7 @@ export default function DashboardPage() {
           <ActiveJobs jobs={activeJobs} />
         </div>
         <div className="xl:col-span-5">
-          <RecentApplications applications={recentApplications} />
+          <RecentApplications applications={[]} />
         </div>
       </div>
     </div>

@@ -2,26 +2,13 @@ import { DashboardStats } from "@/types/dashboard";
 
 export function StatsOverview({ stats }: { stats: DashboardStats }) {
   const cards = [
-    { label: "Active Postings", value: stats.openJobs, trend: "+2 this week" },
-    {
-      label: "Total Applications",
-      value: stats.totalApplications,
-      trend: "Resumes fully parsed",
-    },
-    {
-      label: "Pending Interviews",
-      value: stats.interviewsPending,
-      trend: "Awaiting application completion",
-    },
-    {
-      label: "AI Screening Efficiency",
-      value: stats.aiScreeningEfficiency,
-      trend: "Target: 90%",
-    },
+    { label: "Active Postings", value: stats.openJobs, trend: "Published jobs" },
+    { label: "Total Applications", value: stats.totalApplications, trend: "Resumes fully parsed" },
+    { label: "Pending Interviews", value: stats.interviewsPending, trend: "Awaiting completion" },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {cards.map((card, i) => (
         <div
           key={i}
