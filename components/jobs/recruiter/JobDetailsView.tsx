@@ -117,8 +117,7 @@ export function JobDetailsView({ jobId }: JobDetailsViewProps) {
   }
 
   function handleCopyLink() {
-    const url = `${window.location.origin}/jobs/${job!.id}/apply`;
-    navigator.clipboard.writeText(url).then(() => {
+    navigator.clipboard.writeText(job!.share_link).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });

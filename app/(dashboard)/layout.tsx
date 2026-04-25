@@ -10,6 +10,7 @@ export default async function RecruiterLayout({
 }) {
   const user = await getSession();
   if (!user) redirect("/sign-in");
+  if (!user.onboardingDone) redirect("/onboarding");
 
   return (
     <div className="flex min-h-dvh bg-background text-foreground">

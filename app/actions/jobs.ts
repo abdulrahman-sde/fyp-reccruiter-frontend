@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import type { JobActionState } from "@/types/job";
 
-const API_BASE = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+const API_BASE = process.env.BACKEND_URL ?? "http://localhost:4000";
 
 const createJobSchema = z.object({
   title: z.string().min(1, "Job title is required").max(200),

@@ -17,6 +17,8 @@ export interface JobSummary {
 }
 
 export interface JobDetail extends JobSummary {
+  slug: string;
+  share_link: string;
   description: string;
   requirements: string;
   qualifications: string | null;
