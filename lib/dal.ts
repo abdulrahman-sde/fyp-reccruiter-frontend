@@ -4,8 +4,9 @@ import { cookies } from "next/headers";
 import type { AuthUser } from "@/types/auth";
 import type { JobDetail, JobSummary } from "@/types/job";
 import type { DashboardStats } from "@/types/dashboard";
+import type { RecruiterApplicationsResponse } from "@/types/application";
 
-const API_BASE = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+const API_BASE = process.env.BACKEND_URL ?? "http://localhost:4000";
 
 async function authHeaders(): Promise<HeadersInit | null> {
   const cookieStore = await cookies();
@@ -75,6 +76,31 @@ export const getDashboardStats = cache(async (): Promise<DashboardStats | null> 
     if (!body.success) return null;
     const s = body.data.stats;
     return { openJobs: s.activePostings, totalApplications: s.totalApplications, interviewsPending: s.pendingInterviews };
+  } catch {
+    return null;
+  }
+});
+
+export const getJobApplications = cache(async (
+  jobId: string,
+  params?: { status?: string; page?: number; limit?: number }
+): Promise<RecruiterApplicationsResponse | null> => {
+  const headers = await authHeaders();
+  if (!headers) return null;
+
+  const qs = new URLSearchParams();
+  if (params?.status) qs.set("status", params.status);
+  if (params?.page) qs.set("page", String(params.page));
+  if (params?.limit) qs.set("limit", String(params.limit));
+
+  try {
+    const res = await fetch(`${API_BASE}/api/applications/recruiter/${jobId}?${qs.toString()}`, {
+      headers,
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    const body = (await res.json()) as { success: boolean; data: RecruiterApplicationsResponse };
+    return body.success ? body.data : null;
   } catch {
     return null;
   }

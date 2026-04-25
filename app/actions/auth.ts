@@ -7,7 +7,7 @@ import type { AuthActionState, AuthUser } from "@/types/auth";
 
 // Server actions run on the server — use the internal proxy base so the
 // backend URL is never bundled into client code.
-const API_BASE = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+const API_BASE = process.env.BACKEND_URL ?? "http://localhost:4000";
 
 const REFRESH_TOKEN_MAX_AGE = 7 * 24 * 60 * 60; // 7 days
 
@@ -16,20 +16,22 @@ const signInSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
-const signUpSchema = z.object({
-  firstName: z.string().min(1, "First name is required").max(100),
-  lastName: z.string().min(1, "Last name is required").max(100),
-  email: z.string().email("Invalid email address"),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(/[A-Z]/, "Must contain at least one uppercase letter")
-    .regex(/[0-9]/, "Must contain at least one number"),
-  confirmPassword: z.string(),
-}).refine((d) => d.password === d.confirmPassword, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
-});
+const signUpSchema = z
+  .object({
+    firstName: z.string().min(1, "First name is required").max(100),
+    lastName: z.string().min(1, "Last name is required").max(100),
+    email: z.string().email("Invalid email address"),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .regex(/[A-Z]/, "Must contain at least one uppercase letter")
+      .regex(/[0-9]/, "Must contain at least one number"),
+    confirmPassword: z.string(),
+  })
+  .refine((d) => d.password === d.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 const onboardingSchema = z.object({
   firstName: z.string().min(1, "First name is required").max(100),
@@ -64,7 +66,7 @@ async function setAuthCookies(accessToken: string, refreshToken: string) {
 
 export async function signIn(
   _state: AuthActionState,
-  formData: FormData
+  formData: FormData,
 ): Promise<AuthActionState> {
   const validated = signInSchema.safeParse({
     email: formData.get("email"),
@@ -82,7 +84,10 @@ export async function signIn(
   });
 
   const body = (await res.json()) as
-    | { success: true; data: { user: AuthUser; accessToken?: string; refreshToken?: string } }
+    | {
+        success: true;
+        data: { user: AuthUser; accessToken?: string; refreshToken?: string };
+      }
     | { success: false; message: string };
 
   if (!body.success) {
@@ -124,7 +129,7 @@ export async function signIn(
 
 export async function signUp(
   _state: AuthActionState,
-  formData: FormData
+  formData: FormData,
 ): Promise<AuthActionState> {
   const validated = signUpSchema.safeParse({
     firstName: formData.get("firstName"),
@@ -182,23 +187,27 @@ export async function signUp(
   }
 
   // Store names in a temporary cookie for the onboarding step
-  cookieStore.set("hf_pending_names", JSON.stringify({
-    firstName: payload.firstName,
-    lastName: payload.lastName,
-  }), {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 30 * 60, // 30 min to complete onboarding
-    path: "/",
-  });
+  cookieStore.set(
+    "hf_pending_names",
+    JSON.stringify({
+      firstName: payload.firstName,
+      lastName: payload.lastName,
+    }),
+    {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 30 * 60, // 30 min to complete onboarding
+      path: "/",
+    },
+  );
 
   redirect("/onboarding");
 }
 
 export async function completeOnboarding(
   _state: AuthActionState,
-  formData: FormData
+  formData: FormData,
 ): Promise<AuthActionState> {
   const cookieStore = await cookies();
   const access = cookieStore.get("hf_access");
@@ -209,8 +218,13 @@ export async function completeOnboarding(
   const pendingNames = cookieStore.get("hf_pending_names");
   if (pendingNames) {
     try {
-      savedNames = JSON.parse(pendingNames.value) as { firstName: string; lastName: string };
-    } catch { /* ignore */ }
+      savedNames = JSON.parse(pendingNames.value) as {
+        firstName: string;
+        lastName: string;
+      };
+    } catch {
+      /* ignore */
+    }
   }
 
   const validated = onboardingSchema.safeParse({
@@ -230,7 +244,7 @@ export async function completeOnboarding(
     return { errors: validated.error.flatten().fieldErrors };
   }
 
-  const res = await fetch(`${API_BASE}/api/auth/onboarding`, {
+  const res = await fetch(`${API_BASE}/api/auth/onboarding/recruiter`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -238,6 +252,14 @@ export async function completeOnboarding(
     },
     body: JSON.stringify(validated.data),
   });
+
+  const contentType = res.headers.get("content-type") ?? "";
+  if (!contentType.includes("application/json")) {
+    return {
+      message:
+        "Unexpected response from server while completing onboarding. Please try again.",
+    };
+  }
 
   const body = (await res.json()) as
     | { success: true; data: { user: AuthUser } }
