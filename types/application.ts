@@ -10,6 +10,8 @@ export type ApplicationStatus =
   | "WITHDRAWN";
 
 export type AiRecommendation = "STRONG_HIRE" | "HIRE" | "MAYBE" | "NO_HIRE";
+export type CareerProgression = "STRONG" | "STEADY" | "UNCLEAR" | "CONCERNING";
+export type ExperienceRelevance = "HIGHLY_RELEVANT" | "RELEVANT" | "PARTIALLY_RELEVANT" | "NOT_RELEVANT";
 
 export interface ResumeAnalysis {
   score: number;
@@ -21,6 +23,10 @@ export interface ResumeAnalysis {
   matched_keywords: string[];
   strengths: string[];
   gaps: string[];
+  red_flags: string[];
+  career_progression: CareerProgression;
+  experience_relevance: ExperienceRelevance;
+  has_quantified_achievements: boolean;
   screening_answers: Array<{ question: string; answer: string }>;
 }
 
@@ -83,6 +89,10 @@ export interface ApiApplicationRow {
     matched_keywords?: string[];
     strengths?: string[];
     gaps?: string[];
+    red_flags?: string[];
+    career_progression?: CareerProgression;
+    experience_relevance?: ExperienceRelevance;
+    has_quantified_achievements?: boolean;
     screening_answers?: Array<{ question: string; answer: string }>;
   } | null;
   applied_at: string;

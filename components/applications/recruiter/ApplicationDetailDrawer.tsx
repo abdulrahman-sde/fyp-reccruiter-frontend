@@ -7,13 +7,14 @@ import { StatusPill } from "./StatusPill";
 import { RecommendationPill } from "./RecommendationPill";
 import { MatchBreakdownChart } from "./MatchBreakdownChart";
 import { CompetencyChart } from "./CompetencyChart";
+import { ShortlistModal } from "./ShortlistModal";
 
 type Tab = "overview" | "resume" | "interview" | "activity";
 
 type Props = {
   application: ApplicationRow | null;
   onClose: () => void;
-  onDecision?: (applicationId: string, decision: "SHORTLISTED" | "REJECTED") => void;
+  onDecision?: (applicationId: string, decision: "SHORTLISTED" | "REJECTED" | "HIRED", customQuestions?: string[]) => void;
 };
 
 export function ApplicationDetailDrawer({ application, onClose, onDecision }: Props) {
@@ -369,13 +370,22 @@ function BigScoreCard({
   );
 }
 
-function DecisionBar({ application, onDecision }: { application: ApplicationRow; onDecision?: (id: string, d: "SHORTLISTED" | "REJECTED") => void }) {
+function DecisionBar({
+  application,
+  onDecision,
+}: {
+  application: ApplicationRow;
+  onDecision?: (id: string, d: "SHORTLISTED" | "REJECTED" | "HIRED", customQuestions?: string[]) => void;
+}) {
+  const [showShortlistModal, setShowShortlistModal] = useState(false);
   const s = application.status;
 
-  const canShortlist = s === "APPLIED" || s === "UNDER_REVIEW" || s === "SCREENING";
-  const canReject = s === "APPLIED" || s === "UNDER_REVIEW" || s === "SCREENING" || s === "SHORTLISTED";
+  const preInterviewStatuses = s === "APPLIED" || s === "UNDER_REVIEW" || s === "SCREENING";
+  const interviewDone = s === "INTERVIEWED";
+  const alreadyShortlisted = s === "SHORTLISTED" || s === "INTERVIEW_SCHEDULED";
+  const canReject = preInterviewStatuses || alreadyShortlisted || interviewDone;
 
-  if (!canShortlist && !canReject) {
+  if (!preInterviewStatuses && !interviewDone && !alreadyShortlisted) {
     return (
       <div className="fixed bottom-0 right-0 z-50 w-full border-t border-white/10 bg-neutral-950/95 p-4 backdrop-blur-xl md:w-[60%] lg:w-[52%]">
         <div className="flex items-center justify-center">
@@ -388,27 +398,47 @@ function DecisionBar({ application, onDecision }: { application: ApplicationRow;
   }
 
   return (
-    <div className="fixed bottom-0 right-0 z-50 w-full border-t border-white/10 bg-neutral-950/95 p-4 backdrop-blur-xl md:w-[60%] lg:w-[52%]">
-      <div className="flex items-center gap-3">
-        {canShortlist && (
-          <button
-            type="button"
-            onClick={() => onDecision?.(application.id, "SHORTLISTED")}
-            className="flex-1 rounded-2xl py-3 text-sm font-medium transition-all active:scale-95 bg-emerald-400 text-black hover:bg-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
-          >
-            Shortlist for Interview
-          </button>
-        )}
-        {canReject && (
-          <button
-            type="button"
-            onClick={() => onDecision?.(application.id, "REJECTED")}
-            className="flex-1 rounded-2xl py-3 text-sm font-medium transition-all active:scale-95 border border-red-500/20 text-red-400 hover:bg-red-500/10 hover:border-red-500/50"
-          >
-            Reject
-          </button>
-        )}
+    <>
+      {showShortlistModal && (
+        <ShortlistModal
+          onConfirm={(questions) => {
+            setShowShortlistModal(false);
+            onDecision?.(application.id, "SHORTLISTED", questions);
+          }}
+          onCancel={() => setShowShortlistModal(false)}
+        />
+      )}
+      <div className="fixed bottom-0 right-0 z-50 w-full border-t border-white/10 bg-neutral-950/95 p-4 backdrop-blur-xl md:w-[60%] lg:w-[52%]">
+        <div className="flex items-center gap-3">
+          {preInterviewStatuses && (
+            <button
+              type="button"
+              onClick={() => setShowShortlistModal(true)}
+              className="flex-1 rounded-2xl py-3 text-sm font-medium transition-all active:scale-95 bg-emerald-400 text-black hover:bg-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+            >
+              Shortlist for Interview
+            </button>
+          )}
+          {interviewDone && (
+            <button
+              type="button"
+              onClick={() => onDecision?.(application.id, "HIRED")}
+              className="flex-1 rounded-2xl py-3 text-sm font-medium transition-all active:scale-95 bg-emerald-400 text-black hover:bg-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+            >
+              Final Shortlist
+            </button>
+          )}
+          {canReject && (
+            <button
+              type="button"
+              onClick={() => onDecision?.(application.id, "REJECTED")}
+              className="flex-1 rounded-2xl py-3 text-sm font-medium transition-all active:scale-95 border border-red-500/20 text-red-400 hover:bg-red-500/10 hover:border-red-500/50"
+            >
+              Reject
+            </button>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

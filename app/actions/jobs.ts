@@ -1,8 +1,8 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { serverFetch } from "@/lib/server-fetch";
 import type { JobActionState } from "@/types/job";
 
 const API_BASE = process.env.BACKEND_URL ?? "http://localhost:4000";
@@ -44,10 +44,6 @@ export async function createJob(
   _state: JobActionState,
   formData: FormData
 ): Promise<JobActionState> {
-  const cookieStore = await cookies();
-  const access = cookieStore.get("hf_access");
-  if (!access) redirect("/sign-in");
-
   const rawJobType = formData.get("employmentType") as string;
   const rawExpLevel = formData.get("experienceLevel") as string;
   const rawStatus = formData.get("status") as string;
@@ -73,12 +69,9 @@ export async function createJob(
     return { errors: validated.error.flatten().fieldErrors as JobActionState["errors"] };
   }
 
-  const res = await fetch(`${API_BASE}/api/jobs`, {
+  const res = await serverFetch(`${API_BASE}/api/jobs`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Cookie: `hf_access=${access.value}`,
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(validated.data),
   });
 
@@ -91,16 +84,9 @@ export async function createJob(
 }
 
 export async function updateJobStatus(jobId: string, status: string): Promise<{ success: boolean; message?: string }> {
-  const cookieStore = await cookies();
-  const access = cookieStore.get("hf_access");
-  if (!access) return { success: false, message: "Not authenticated" };
-
-  const res = await fetch(`${API_BASE}/api/jobs/${jobId}/status`, {
+  const res = await serverFetch(`${API_BASE}/api/jobs/${jobId}/status`, {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      Cookie: `hf_access=${access.value}`,
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ status }),
   });
 

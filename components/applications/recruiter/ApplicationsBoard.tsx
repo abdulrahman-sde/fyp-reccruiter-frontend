@@ -1,10 +1,11 @@
 "use client";
 
-import { useTransition } from "react";
+import { useTransition, useState } from "react";
 import { useApplications } from "@/hooks/useApplications";
 import { ApplicationsHeader } from "./ApplicationsHeader";
 import { ApplicationsFilterBar } from "./ApplicationsFilterBar";
 import { ApplicationsTable } from "./ApplicationsTable";
+import { ShortlistModal } from "./ShortlistModal";
 import { updateApplicationDecision } from "@/app/actions/applications";
 
 type Props = {
@@ -27,13 +28,27 @@ export function ApplicationsBoard({ jobId }: Props) {
   } = useApplications(jobId);
 
   const [isPending, startTransition] = useTransition();
+  const [shortlistTarget, setShortlistTarget] = useState<string | null>(null);
 
-  function handleDecision(applicationId: string, decision: "SHORTLISTED" | "REJECTED") {
+  function handleDecision(applicationId: string, decision: "SHORTLISTED" | "REJECTED" | "HIRED", customQuestions?: string[]) {
+    if (decision === "SHORTLISTED" && !customQuestions) {
+      setShortlistTarget(applicationId);
+      return;
+    }
+    commitDecision(applicationId, decision, customQuestions);
+  }
+
+  function commitDecision(
+    applicationId: string,
+    decision: "SHORTLISTED" | "REJECTED" | "HIRED",
+    customQuestions?: string[],
+    windowStart?: string,
+    windowEnd?: string
+  ) {
     applyOptimisticStatus(applicationId, decision);
     startTransition(async () => {
-      const result = await updateApplicationDecision(applicationId, jobId, decision);
+      const result = await updateApplicationDecision(applicationId, jobId, decision, undefined, customQuestions, windowStart, windowEnd);
       if (!result.success) {
-        // Revert optimistic update on failure
         await refresh();
       }
     });
@@ -72,6 +87,16 @@ export function ApplicationsBoard({ jobId }: Props) {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
+      {shortlistTarget && (
+        <ShortlistModal
+          onConfirm={(questions, windowStart, windowEnd) => {
+            const id = shortlistTarget;
+            setShortlistTarget(null);
+            commitDecision(id, "SHORTLISTED", questions, windowStart, windowEnd);
+          }}
+          onCancel={() => setShortlistTarget(null)}
+        />
+      )}
       <ApplicationsHeader
         job={job}
         counts={counts}

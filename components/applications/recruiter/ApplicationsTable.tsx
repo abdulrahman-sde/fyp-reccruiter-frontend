@@ -10,7 +10,7 @@ type Props = {
   rows: ApplicationRow[];
   jobId: string;
   anyInterview: boolean;
-  onDecision: (applicationId: string, decision: "SHORTLISTED" | "REJECTED") => void;
+  onDecision: (applicationId: string, decision: "SHORTLISTED" | "REJECTED", customQuestions?: string[]) => void;
   isPending: boolean;
 };
 
@@ -65,7 +65,7 @@ function ApplicationRow({
   row: ApplicationRow;
   jobId: string;
   anyInterview: boolean;
-  onDecision: (applicationId: string, decision: "SHORTLISTED" | "REJECTED") => void;
+  onDecision: (applicationId: string, decision: "SHORTLISTED" | "REJECTED", customQuestions?: string[]) => void;
   isPending: boolean;
 }) {
   const canDecide = row.status === "APPLIED" || row.status === "UNDER_REVIEW";

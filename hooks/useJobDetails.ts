@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { apiFetch } from "@/lib/api";
 import type { JobDetail } from "@/types/job";
 
 interface UseJobDetailsResult {
@@ -19,7 +20,7 @@ export function useJobDetails(id: string): UseJobDetailsResult {
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch(`/api/jobs/${id}`, { credentials: "include" });
+        const res = await apiFetch(`/api/jobs/${id}`);
         if (res.status === 404) throw new Error("Job not found");
         if (!res.ok) throw new Error("Failed to load job");
         const body = (await res.json()) as { success: boolean; data: { job: JobDetail } };
