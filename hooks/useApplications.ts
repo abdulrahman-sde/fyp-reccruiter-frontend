@@ -1,15 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { apiFetch } from "@/lib/api";
 import type {
   AiRecommendation,
-  ApiApplicationRow,
   ApplicationRow,
   ApplicationsFilters,
   ApplicationsJobContext,
   ApplicationStatus,
   RecruiterApplicationsResponse,
 } from "@/types/application";
+import { toApplicationRow } from "@/lib/applicationUtils";
 
 export const STATUS_LABELS: Record<ApplicationStatus, string> = {
   APPLIED: "Applied",
@@ -30,43 +31,6 @@ export const REC_LABELS: Record<AiRecommendation, string> = {
   NO_HIRE: "No Hire",
 };
 
-function toApplicationRow(app: ApiApplicationRow): ApplicationRow {
-  const d = app.match_details;
-  return {
-    id: app.id,
-    candidate_name: app.candidate_name,
-    candidate_title: app.candidate_title ?? "",
-    candidate_location: app.candidate_location ?? "",
-    candidate_email: app.candidate_email,
-    avatar_initials: app.avatar_initials,
-    applied_at: app.applied_at,
-    status: app.status as ApplicationStatus,
-    resume: {
-      score: app.match_score ?? 0,
-      recommendation: (d?.recommendation as AiRecommendation) ?? "MAYBE",
-      summary: d?.summary ?? "AI analysis pending…",
-      skills_match: d?.skills_match ?? 0,
-      experience_match: d?.experience_match ?? 0,
-      education_match: d?.education_match ?? 0,
-      matched_keywords: (d?.matched_keywords as string[]) ?? [],
-      strengths: (d?.strengths as string[]) ?? [],
-      gaps: (d?.gaps as string[]) ?? [],
-      screening_answers: (d?.screening_answers as Array<{ question: string; answer: string }>) ?? [],
-    },
-    interview: app.interview
-      ? {
-          score: 0,
-          recommendation: "MAYBE",
-          confidence: 0,
-          summary: "",
-          competencies: [],
-          questions: [],
-          conducted_at: "",
-        }
-      : null,
-    activity: [],
-  };
-}
 
 const RESUME_BUCKETS: Record<ApplicationsFilters["resume_score_bucket"], (n: number) => boolean> = {
   ANY: () => true,
@@ -98,7 +62,7 @@ export function useApplications(jobId?: string) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/applications/recruiter/${jobId}?limit=50`);
+      const res = await apiFetch(`/api/applications/recruiter/${jobId}?limit=50`);
       if (!res.ok) throw new Error("Failed to load applications");
       const body = (await res.json()) as { success: boolean; data: RecruiterApplicationsResponse };
       if (body.success) {

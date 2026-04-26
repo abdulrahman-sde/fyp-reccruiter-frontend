@@ -160,14 +160,7 @@ export function JobDetailsView({ jobId }: JobDetailsViewProps) {
             {copied ? "Copied!" : "Share Link"}
           </Button>
           <Button
-            variant="outline"
-            onClick={() => router.push(`/jobs/${job.id}/edit`)}
-            className="rounded-full px-5 py-5 text-sm font-medium bg-transparent border border-white/10 text-white hover:bg-white/5 transition-all"
-          >
-            Edit Role
-          </Button>
-          <Button
-            onClick={() => router.push(`/jobs/${job.id}/applications`)}
+            onClick={() => router.push(`/applications?jobId=${job.id}`)}
             className="rounded-full px-5 py-5 text-sm font-medium bg-white text-black hover:bg-white/90 transition-all"
           >
             View Applications

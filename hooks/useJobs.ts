@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { apiFetch } from "@/lib/api";
 import type { JobSummary, JobStatus } from "@/types/job";
 
 interface UseJobsResult {
@@ -23,7 +24,7 @@ export function useJobs(status?: JobStatus): UseJobsResult {
       setError(null);
       const params = new URLSearchParams({ limit: "100" });
       if (status) params.set("status", status);
-      const res = await fetch(`/api/jobs?${params.toString()}`, { credentials: "include" });
+      const res = await apiFetch(`/api/jobs?${params.toString()}`);
       if (!res.ok) throw new Error("Failed to load jobs");
       const body = (await res.json()) as { success: boolean; data: { jobs: JobSummary[]; total: number } };
       if (!body.success) throw new Error("Failed to load jobs");

@@ -1,162 +1,16 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useState, useTransition } from "react";
 import Link from "next/link";
-import type {
-  AiRecommendation,
-  ApiApplicationRow,
-  ApplicationRow,
-  ApplicationStatus,
-  RecruiterApplicationsResponse,
-} from "@/types/application";
+import type { ApplicationRow, ApplicationStatus } from "@/types/application";
 import { ScorePill } from "@/components/applications/recruiter/ScorePill";
 import { StatusPill } from "@/components/applications/recruiter/StatusPill";
 import { RecommendationPill } from "@/components/applications/recruiter/RecommendationPill";
-
-// ─── mock data (replace with DAL/fetch) ──────────────────────────────────────
-
-const MOCK: Record<string, ApplicationRow> = {
-  a1: {
-    id: "a1",
-    candidate_name: "Elara Vance",
-    candidate_title: "Staff Frontend Engineer @ Figma",
-    candidate_location: "Remote · Berlin",
-    candidate_email: "elara@example.com",
-    avatar_initials: "EV",
-    applied_at: "2026-04-22T08:20:00Z",
-    status: "INTERVIEWED",
-    resume: {
-      score: 94,
-      recommendation: "STRONG_HIRE",
-      summary: "Exceptional technical fit. Matches 9/10 core requirements including Next.js App Router, design systems, and perf budgets.",
-      skills_match: 96,
-      experience_match: 92,
-      education_match: 88,
-      matched_keywords: ["Next.js 15", "React Server Components", "Design Systems", "Accessibility", "Tailwind"],
-      strengths: ["10+ years React / Next.js including App Router migrations", "Built and scaled a 120-component design system", "Owned Core Web Vitals rollout shipping sub-200ms LCP"],
-      gaps: ["No formal management title", "Limited backend Python exposure"],
-      screening_answers: [
-        { question: "Why are you leaving your current role?", answer: "Looking for a smaller team and product ownership." },
-        { question: "Earliest start date?", answer: "Four weeks from offer." },
-      ],
-    },
-    interview: {
-      score: 91,
-      recommendation: "STRONG_HIRE",
-      confidence: 0.86,
-      summary: "Articulated complex architectural tradeoffs with clarity. Strong systems thinking; minor hesitation on live coding edge cases.",
-      competencies: [
-        { label: "Communication", score: 94 },
-        { label: "Technical Depth", score: 92 },
-        { label: "Problem Solving", score: 88 },
-        { label: "Culture Fit", score: 90 },
-      ],
-      questions: [
-        { question: "Walk me through how you'd migrate a Pages Router app to App Router.", answer_excerpt: "Start by co-locating server and client components, then migrate data fetching to server components…", rating: 5, note: "Clear, staged, considers rollback." },
-        { question: "How would you debug a sudden LCP regression in production?", answer_excerpt: "Check RUM first, bisect deploys, then open the waterfall for the slowest segment…", rating: 5, note: "Excellent mental model." },
-        { question: "Design a component library API for theming.", answer_excerpt: "Tokens at the CSS variable layer, semantic aliasing on top…", rating: 4, note: "Solid; missed a case on dark-mode token inheritance." },
-      ],
-      transcript_url: "#",
-      conducted_at: "2026-04-21T15:00:00Z",
-    },
-    activity: [
-      { at: "2026-04-21T15:45:00Z", label: "Interview completed", by: "AI Interviewer" },
-      { at: "2026-04-20T09:12:00Z", label: "Interview scheduled", by: "Sarah K." },
-      { at: "2026-04-19T10:02:00Z", label: "Shortlisted", by: "Sarah K." },
-      { at: "2026-04-22T08:20:00Z", label: "Applied", by: "Candidate" },
-    ],
-  },
-  a2: {
-    id: "a2",
-    candidate_name: "Julian Thorne",
-    candidate_title: "Senior SWE @ Stripe",
-    candidate_location: "London, UK",
-    candidate_email: "julian@example.com",
-    avatar_initials: "JT",
-    applied_at: "2026-04-21T10:00:00Z",
-    status: "INTERVIEWED",
-    resume: {
-      score: 88,
-      recommendation: "HIRE",
-      summary: "Strong generalist with infra leanings. Frontend depth is solid but narrower than top candidates.",
-      skills_match: 84,
-      experience_match: 90,
-      education_match: 85,
-      matched_keywords: ["React", "TypeScript", "GraphQL", "Performance"],
-      strengths: ["Owned checkout flow at Stripe for 3 years", "Strong TypeScript fundamentals"],
-      gaps: ["Limited App Router experience", "No design system leadership"],
-      screening_answers: [
-        { question: "Why are you leaving your current role?", answer: "Want to be closer to the product." },
-        { question: "Earliest start date?", answer: "Two months out." },
-      ],
-    },
-    interview: {
-      score: 82,
-      recommendation: "HIRE",
-      confidence: 0.78,
-      summary: "Methodical and precise. Less expressive than expected when pushed into ambiguity.",
-      competencies: [
-        { label: "Communication", score: 80 },
-        { label: "Technical Depth", score: 88 },
-        { label: "Problem Solving", score: 84 },
-        { label: "Culture Fit", score: 76 },
-      ],
-      questions: [
-        { question: "How do you approach a frontend that feels slow?", answer_excerpt: "Measure first, then split by network, CPU, and render…", rating: 4, note: "Good framework." },
-      ],
-      transcript_url: "#",
-      conducted_at: "2026-04-22T11:00:00Z",
-    },
-    activity: [
-      { at: "2026-04-22T11:40:00Z", label: "Interview completed", by: "AI Interviewer" },
-      { at: "2026-04-21T10:00:00Z", label: "Applied", by: "Candidate" },
-    ],
-  },
-};
-
-// ─── tabs ─────────────────────────────────────────────────────────────────────
+import { ShortlistModal } from "@/components/applications/recruiter/ShortlistModal";
+import { updateApplicationDecision } from "@/app/actions/applications";
+import { useApplicationDetail } from "@/hooks/useApplicationDetail";
 
 type Tab = "candidate" | "resume" | "interview";
-
-function toApplicationRow(app: ApiApplicationRow): ApplicationRow {
-  const d = app.match_details;
-  return {
-    id: app.id,
-    candidate_name: app.candidate_name,
-    candidate_title: app.candidate_title ?? "",
-    candidate_location: app.candidate_location ?? "",
-    candidate_email: app.candidate_email,
-    avatar_initials: app.avatar_initials,
-    applied_at: app.applied_at,
-    status: app.status as ApplicationStatus,
-    resume: {
-      score: app.match_score ?? 0,
-      recommendation: (d?.recommendation as AiRecommendation) ?? "MAYBE",
-      summary: d?.summary ?? "AI analysis pending…",
-      skills_match: d?.skills_match ?? 0,
-      experience_match: d?.experience_match ?? 0,
-      education_match: d?.education_match ?? 0,
-      matched_keywords: (d?.matched_keywords as string[]) ?? [],
-      strengths: (d?.strengths as string[]) ?? [],
-      gaps: (d?.gaps as string[]) ?? [],
-      screening_answers: (d?.screening_answers as Array<{ question: string; answer: string }>) ?? [],
-    },
-    interview: app.interview
-      ? {
-          score: 0,
-          recommendation: "MAYBE",
-          confidence: 0,
-          summary: "Interview data will appear here once analysis is available.",
-          competencies: [],
-          questions: [],
-          conducted_at: "",
-        }
-      : null,
-    activity: [],
-  };
-}
-
-// ─── page ─────────────────────────────────────────────────────────────────────
 
 export default function ApplicationDetailPage({
   params,
@@ -167,71 +21,8 @@ export default function ApplicationDetailPage({
 }) {
   const { id } = use(params);
   const { jobId } = use(searchParams);
-  const [app, setApp] = useState<ApplicationRow | null>(() => MOCK[id] ?? null);
-  const [loading, setLoading] = useState<boolean>(!!jobId && !MOCK[id]);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const { app, loading, error, updateStatus } = useApplicationDetail(id, jobId);
   const [tab, setTab] = useState<Tab>("candidate");
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadApplication() {
-      if (!jobId) {
-        setLoading(false);
-        if (!MOCK[id]) setLoadError("Missing job context. Open details from the applications list.");
-        return;
-      }
-
-      setLoading(true);
-      setLoadError(null);
-
-      try {
-        let found: ApiApplicationRow | undefined;
-        let page = 1;
-        let total = 0;
-        const limit = 50;
-
-        do {
-          const res = await fetch(`/api/applications/recruiter/${jobId}?page=${page}&limit=${limit}`, {
-            cache: "no-store",
-          });
-          if (!res.ok) throw new Error("Failed to load job applications");
-
-          const body = (await res.json()) as {
-            success: boolean;
-            data: RecruiterApplicationsResponse;
-          };
-
-          if (!body.success) throw new Error("Invalid response");
-
-          found = body.data.applications.find((a) => a.id === id);
-          total = body.data.total;
-          page += 1;
-        } while (!found && (page - 1) * limit < total);
-
-        if (cancelled) return;
-
-        if (!found) {
-          setApp(MOCK[id] ?? null);
-          return;
-        }
-
-        setApp(toApplicationRow(found));
-      } catch {
-        if (cancelled) return;
-        setLoadError("Could not load application details.");
-        setApp(MOCK[id] ?? null);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-
-    void loadApplication();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [id, jobId]);
 
   const backHref = jobId ? `/applications?jobId=${jobId}` : "/applications";
 
@@ -243,7 +34,7 @@ export default function ApplicationDetailPage({
     return (
       <div className="flex h-96 flex-col items-center justify-center gap-2 text-white/40">
         <div className="text-sm">Application not found.</div>
-        {loadError && <div className="text-xs text-white/30">{loadError}</div>}
+        {error && <div className="text-xs text-white/30">{error}</div>}
         <Link href={backHref} className="text-xs text-emerald-400 hover:text-emerald-300">← Back to applications</Link>
       </div>
     );
@@ -292,7 +83,11 @@ export default function ApplicationDetailPage({
       </div>
 
       {/* Decision bar */}
-      <DecisionBar app={app} />
+      <DecisionBar
+        app={app}
+        jobId={jobId ?? ""}
+        onStatusChange={updateStatus}
+      />
 
       {/* Tabs */}
       <div className="flex items-center gap-1 border-b border-white/5">
@@ -330,36 +125,150 @@ export default function ApplicationDetailPage({
 
 // ─── Decision bar ─────────────────────────────────────────────────────────────
 
-function DecisionBar({ app }: { app: ApplicationRow }) {
-  const isInterviewCompleted = app.status === "INTERVIEWED";
-  const buttons: Array<{ label: string; variant: "primary" | "danger" | "ghost" }> = [];
+function DecisionBar({
+  app,
+  jobId,
+  onStatusChange,
+}: {
+  app: ApplicationRow;
+  jobId: string;
+  onStatusChange: (status: ApplicationStatus) => void;
+}) {
+  const [showShortlistModal, setShowShortlistModal] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
-  if (isInterviewCompleted) {
-    buttons.push({ label: "Shortlist for Final Onsite Interview", variant: "primary" });
-    buttons.push({ label: "Reject", variant: "danger" });
-  } else {
-    buttons.push({ label: "Shortlist for Interview", variant: "primary" });
-    buttons.push({ label: "Reject", variant: "danger" });
+  const s = app.status;
+  const canShortlist = s === "APPLIED" || s === "UNDER_REVIEW" || s === "SCREENING";
+  const isShortlisted = s === "SHORTLISTED";
+  const canReject = s === "APPLIED" || s === "UNDER_REVIEW" || s === "SCREENING";
+  const isTerminal = s === "HIRED" || s === "REJECTED" || s === "WITHDRAWN";
+  const isInProgress = s === "INTERVIEW_SCHEDULED" || s === "INTERVIEWED";
+
+  function commit(decision: "SHORTLISTED" | "REJECTED", customQuestions?: string[]) {
+    setError(null);
+    startTransition(async () => {
+      const result = await updateApplicationDecision(app.id, jobId, decision, undefined, customQuestions);
+      if (!result.success) {
+        setError(result.error ?? "Failed to update decision");
+      } else {
+        onStatusChange(decision);
+      }
+    });
+  }
+
+  if (isTerminal) {
+    const config =
+      s === "HIRED"
+        ? { icon: "✓", label: "Candidate Hired", color: "border-emerald-500/20 bg-emerald-500/5 text-emerald-400" }
+        : s === "REJECTED"
+        ? { icon: "✕", label: "Application Rejected", color: "border-red-500/20 bg-red-500/5 text-red-400" }
+        : { icon: "↩", label: "Candidate Withdrew", color: "border-white/10 bg-white/2 text-white/40" };
+    return (
+      <div className={`flex items-center gap-2.5 justify-center rounded-2xl border px-4 py-3 ${config.color}`}>
+        <span className="text-base leading-none">{config.icon}</span>
+        <span className="text-sm font-medium">{config.label}</span>
+      </div>
+    );
+  }
+
+  if (isInProgress) {
+    return (
+      <div className="flex items-center justify-between rounded-2xl border border-emerald-500/15 bg-emerald-500/5 px-5 py-3">
+        <div className="flex items-center gap-2.5">
+          <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-sm text-emerald-300">
+            {s === "INTERVIEW_SCHEDULED" ? "Interview scheduled — awaiting completion" : "Interview completed — analysis in progress"}
+          </span>
+        </div>
+        <span className="text-xs text-white/30 uppercase tracking-widest">{s.replace(/_/g, " ")}</span>
+      </div>
+    );
+  }
+
+  if (isShortlisted) {
+    return (
+      <>
+        {showShortlistModal && (
+          <ShortlistModal
+            onConfirm={(questions) => {
+              setShowShortlistModal(false);
+              commit("SHORTLISTED", questions);
+            }}
+            onCancel={() => setShowShortlistModal(false)}
+          />
+        )}
+        <div className="space-y-2">
+          {error && (
+            <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-2 text-sm text-red-400">
+              {error}
+            </div>
+          )}
+          <div className="flex items-center gap-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 px-5 py-3">
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <span className="text-emerald-400 text-base leading-none">✓</span>
+                <span className="text-sm font-medium text-emerald-300">Shortlisted for Interview</span>
+              </div>
+              <p className="mt-0.5 text-xs text-white/40">
+                Interview invite sent. Awaiting candidate confirmation.
+              </p>
+            </div>
+            <button
+              type="button"
+              disabled={isPending}
+              onClick={() => commit("REJECTED")}
+              className="shrink-0 rounded-xl border border-red-500/20 px-3 py-1.5 text-xs font-medium text-red-400 hover:bg-red-500/10 hover:border-red-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isPending ? "Saving…" : "Revoke & Reject"}
+            </button>
+          </div>
+        </div>
+      </>
+    );
   }
 
   return (
-    <div className="flex items-center gap-3">
-      {buttons.map((b) => (
-        <button
-          key={b.label}
-          type="button"
-          className={`flex-1 rounded-2xl py-3 text-sm font-medium transition-all active:scale-95 ${
-            b.variant === "primary"
-              ? "bg-emerald-400 text-black hover:bg-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
-              : b.variant === "danger"
-              ? "border border-red-500/20 text-red-400 hover:bg-red-500/10 hover:border-red-500/50"
-              : "border border-white/10 text-white/70 hover:bg-white/5 hover:text-white"
-          }`}
-        >
-          {b.label}
-        </button>
-      ))}
-    </div>
+    <>
+      {showShortlistModal && (
+        <ShortlistModal
+          onConfirm={(questions) => {
+            setShowShortlistModal(false);
+            commit("SHORTLISTED", questions);
+          }}
+          onCancel={() => setShowShortlistModal(false)}
+        />
+      )}
+      <div className="space-y-2">
+        {error && (
+          <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-2 text-sm text-red-400">
+            {error}
+          </div>
+        )}
+        <div className="flex items-center gap-3">
+          {canShortlist && (
+            <button
+              type="button"
+              disabled={isPending}
+              onClick={() => setShowShortlistModal(true)}
+              className="flex-1 rounded-2xl py-3 text-sm font-medium transition-all active:scale-95 bg-emerald-400 text-black hover:bg-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isPending ? "Saving…" : "Shortlist for Interview"}
+            </button>
+          )}
+          {canReject && (
+            <button
+              type="button"
+              disabled={isPending}
+              onClick={() => commit("REJECTED")}
+              className="flex-1 rounded-2xl py-3 text-sm font-medium transition-all active:scale-95 border border-red-500/20 text-red-400 hover:bg-red-500/10 hover:border-red-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isPending ? "Saving…" : "Reject"}
+            </button>
+          )}
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -413,51 +322,99 @@ function CandidateTab({ app }: { app: ApplicationRow }) {
 
 // ─── Resume tab ───────────────────────────────────────────────────────────────
 
+const PROGRESSION_CONFIG = {
+  STRONG: { label: "Strong Progression", color: "text-emerald-400 border-emerald-400/20 bg-emerald-400/10" },
+  STEADY: { label: "Steady Career", color: "text-blue-400 border-blue-400/20 bg-blue-400/10" },
+  UNCLEAR: { label: "Unclear Trajectory", color: "text-yellow-400 border-yellow-400/20 bg-yellow-400/10" },
+  CONCERNING: { label: "Concerning Pattern", color: "text-red-400 border-red-400/20 bg-red-400/10" },
+} as const;
+
+const RELEVANCE_CONFIG = {
+  HIGHLY_RELEVANT: { label: "Highly Relevant", color: "text-emerald-400 border-emerald-400/20 bg-emerald-400/10" },
+  RELEVANT: { label: "Relevant", color: "text-blue-400 border-blue-400/20 bg-blue-400/10" },
+  PARTIALLY_RELEVANT: { label: "Partially Relevant", color: "text-yellow-400 border-yellow-400/20 bg-yellow-400/10" },
+  NOT_RELEVANT: { label: "Not Relevant", color: "text-red-400 border-red-400/20 bg-red-400/10" },
+} as const;
+
 function ResumeTab({ app }: { app: ApplicationRow }) {
+  const r = app.resume;
+  const progression = PROGRESSION_CONFIG[r.career_progression] ?? PROGRESSION_CONFIG.UNCLEAR;
+  const relevance = RELEVANCE_CONFIG[r.experience_relevance] ?? RELEVANCE_CONFIG.PARTIALLY_RELEVANT;
+
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-        <ScoreCard label="Resume Score" score={app.resume.score} />
-        <ScoreCard label="Skills Match" score={app.resume.skills_match} />
-        <ScoreCard label="Experience Match" score={app.resume.experience_match} />
+        <ScoreCard label="Resume Score" score={r.score} />
+        <ScoreCard label="Skills Match" score={r.skills_match} />
+        <ScoreCard label="Experience Match" score={r.experience_match} />
+      </div>
+
+      {/* Signal badges row */}
+      <div className="flex flex-wrap gap-2">
+        <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${progression.color}`}>
+          <span>↗</span> {progression.label}
+        </span>
+        <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${relevance.color}`}>
+          <span>◎</span> {relevance.label}
+        </span>
+        <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${
+          r.has_quantified_achievements
+            ? "text-emerald-400 border-emerald-400/20 bg-emerald-400/10"
+            : "text-white/40 border-white/10 bg-white/5"
+        }`}>
+          <span>#</span> {r.has_quantified_achievements ? "Has Metrics" : "No Metrics"}
+        </span>
       </div>
 
       <Card title="Match Breakdown">
         <div className="space-y-3">
-          <BreakdownBar label="Skills" value={app.resume.skills_match} />
-          <BreakdownBar label="Experience" value={app.resume.experience_match} />
-          <BreakdownBar label="Education" value={app.resume.education_match} />
+          <BreakdownBar label="Skills" value={r.skills_match} />
+          <BreakdownBar label="Experience" value={r.experience_match} />
+          <BreakdownBar label="Education" value={r.education_match} />
         </div>
       </Card>
 
-      <Card title="Summary">
-        <p className="text-sm font-light text-white/70 leading-relaxed">{app.resume.summary}</p>
+      <Card title="AI Summary">
+        <p className="text-sm font-light text-white/70 leading-relaxed">{r.summary}</p>
       </Card>
 
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         <Card title="Key Strengths">
           <ul className="space-y-2">
-            {app.resume.strengths.map((s, i) => (
+            {r.strengths.map((s, i) => (
               <li key={i} className="flex gap-2 text-sm font-light text-white/70">
-                <span className="text-emerald-400 shrink-0">✦</span> {s}
+                <span className="text-emerald-400 shrink-0 mt-0.5">✦</span> {s}
               </li>
             ))}
           </ul>
         </Card>
         <Card title="Gaps / Concerns">
           <ul className="space-y-2">
-            {app.resume.gaps.map((s, i) => (
+            {r.gaps.map((s, i) => (
               <li key={i} className="flex gap-2 text-sm font-light text-white/50">
-                <span className="text-red-400/60 shrink-0">⨯</span> {s}
+                <span className="text-yellow-400/60 shrink-0 mt-0.5">△</span> {s}
               </li>
             ))}
           </ul>
         </Card>
       </div>
 
+      {r.red_flags.length > 0 && (
+        <div className="rounded-3xl border border-red-500/20 bg-red-500/5 p-5">
+          <div className="mb-3 text-[10px] uppercase tracking-widest text-red-400/80">Red Flags</div>
+          <ul className="space-y-2">
+            {r.red_flags.map((flag, i) => (
+              <li key={i} className="flex gap-2 text-sm font-light text-red-300/80">
+                <span className="text-red-400 shrink-0 mt-0.5">⨯</span> {flag}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <Card title="Matched Keywords">
         <div className="flex flex-wrap gap-1.5">
-          {app.resume.matched_keywords.map((k) => (
+          {r.matched_keywords.map((k) => (
             <span key={k} className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-[11px] text-emerald-300">
               {k}
             </span>
@@ -465,10 +422,10 @@ function ResumeTab({ app }: { app: ApplicationRow }) {
         </div>
       </Card>
 
-      {app.resume.screening_answers.length > 0 && (
+      {r.screening_answers.length > 0 && (
         <Card title="Screening Answers">
           <div className="space-y-4">
-            {app.resume.screening_answers.map((qa, i) => (
+            {r.screening_answers.map((qa, i) => (
               <div key={i}>
                 <div className="text-xs uppercase tracking-widest text-white/40">{qa.question}</div>
                 <div className="mt-1 text-sm font-light text-white/70">{qa.answer}</div>

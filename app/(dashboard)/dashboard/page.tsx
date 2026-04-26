@@ -1,4 +1,4 @@
-import { getDashboardStats, getJobs } from "@/lib/dal";
+import { getDashboardStats, getJobs, getTopScoredApplications } from "@/lib/dal";
 import { StatsOverview } from "@/components/dashboard/recruiter/StatsOverview";
 import { ActiveJobs } from "@/components/dashboard/recruiter/ActiveJobs";
 import { RecentApplications } from "@/components/dashboard/recruiter/RecentApplications";
@@ -12,7 +12,9 @@ export default async function DashboardPage() {
 
   const stats: DashboardStats = statsData ?? { openJobs: 0, totalApplications: 0, interviewsPending: 0 };
 
-  const activeJobs = (jobsData?.jobs ?? []).map((j) => ({
+  const jobs = jobsData?.jobs ?? [];
+
+  const activeJobs = jobs.map((j) => ({
     id: j.id,
     title: j.title,
     department: j.experience_level,
@@ -21,6 +23,10 @@ export default async function DashboardPage() {
     aiMatchedCount: j.ai_matches_count,
     interviewsScheduled: 0,
   }));
+
+  const topApplications = jobs.length > 0
+    ? await getTopScoredApplications(jobs[0]!.id, 4)
+    : [];
 
   return (
     <div className="space-y-12 max-w-7xl mx-auto">
@@ -40,7 +46,7 @@ export default async function DashboardPage() {
           <ActiveJobs jobs={activeJobs} />
         </div>
         <div className="xl:col-span-5">
-          <RecentApplications applications={[]} />
+          <RecentApplications applications={topApplications} />
         </div>
       </div>
     </div>
